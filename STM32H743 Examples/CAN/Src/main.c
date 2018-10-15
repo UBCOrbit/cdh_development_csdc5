@@ -48,11 +48,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 FDCAN_HandleTypeDef hfdcan1;
-
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+FDCAN_RxHeaderTypeDef RxHeader;
+uint8_t RxData[8];
+FDCAN_TxHeaderTypeDef TxHeader;
+uint8_t TxData[8] = "Trillium";
 
 /* USER CODE END PV */
 
@@ -102,47 +105,25 @@ int main(void)
   MX_GPIO_Init();
   MX_FDCAN1_Init();
   MX_USART3_UART_Init();
+
   /* USER CODE BEGIN 2 */
-  HAL_FDCAN_Start(&hfdcan1);
 
-  //https://community.st.com/s/question/0D50X00009XkWmjSAF/fdcan-stm32h743zinucleo-tx
-  FDCAN_TxHeaderTypeDef TxHeader;
+  /* Start the FDCAN module */
+  if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) {
+    /* Start Error */
+    Error_Handler();
+  }
 
-  uint32_t msg_marker = 0;
-
-  TxHeader.Identifier = (uint32_t) 0x7FF;
-
-
+  /* Prepare Tx Header */
+  TxHeader.Identifier = 0x321;
   TxHeader.IdType = FDCAN_STANDARD_ID;
-
-
   TxHeader.TxFrameType = FDCAN_DATA_FRAME;
-
-
   TxHeader.DataLength = FDCAN_DLC_BYTES_8;
-
-
   TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-
-
   TxHeader.BitRateSwitch = FDCAN_BRS_OFF;
-
-
   TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
-
-
   TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-
-
-  TxHeader.MessageMarker = msg_marker;
-
-  uint8_t size = sizeof(TxHeader);
-  HAL_UART_Transmit(&huart3, &size, 1, 100);
-  if(size == 0)
-	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-
-  // 8 byte data field
-  uint8_t data[8] = {9,0,0,0,0,0,0,0};
+  TxHeader.MessageMarker = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,16 +134,13 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, data) != HAL_OK){
-		  //Turn the LED on
+	  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) != HAL_OK) {
 		  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
-		  //Wait 1 second
-		  HAL_Delay(1000);
-		  //Turn the other LED off
+		  HAL_Delay(500);
 		  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-		  //Wait 1 second
-		  HAL_Delay(1000);
 	  }
+
+	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 
@@ -252,50 +230,32 @@ void SystemClock_Config(void)
 /* FDCAN1 init function */
 static void MX_FDCAN1_Init(void)
 {
-
   hfdcan1.Instance = FDCAN1;
   hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-  hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
+  hfdcan1.Init.Mode = FDCAN_MODE_INTERNAL_LOOPBACK;
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 1;
-  hfdcan1.Init.NominalSyncJumpWidth = 1;
-  hfdcan1.Init.NominalTimeSeg1 = 2;
-  hfdcan1.Init.NominalTimeSeg2 = 2;
-  hfdcan1.Init.DataPrescaler = 1;
-  hfdcan1.Init.DataSyncJumpWidth = 1;
-  hfdcan1.Init.DataTimeSeg1 = 1;
-  hfdcan1.Init.DataTimeSeg2 = 1;
+  hfdcan1.Init.ProtocolException = ENABLE;
+  hfdcan1.Init.NominalPrescaler = 0x1;
+  hfdcan1.Init.NominalSyncJumpWidth = 0x8;
+  hfdcan1.Init.NominalTimeSeg1 = 0x1F;
+  hfdcan1.Init.NominalTimeSeg2 = 0x8;
   hfdcan1.Init.MessageRAMOffset = 0;
-  hfdcan1.Init.StdFiltersNbr = 0;
+  hfdcan1.Init.StdFiltersNbr = 1;
   hfdcan1.Init.ExtFiltersNbr = 0;
-  hfdcan1.Init.RxFifo0ElmtsNbr = 0;
+  hfdcan1.Init.RxFifo0ElmtsNbr = 1;
   hfdcan1.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
   hfdcan1.Init.RxFifo1ElmtsNbr = 0;
-  hfdcan1.Init.RxFifo1ElmtSize = FDCAN_DATA_BYTES_8;
   hfdcan1.Init.RxBuffersNbr = 0;
-  hfdcan1.Init.RxBufferSize = FDCAN_DATA_BYTES_8;
   hfdcan1.Init.TxEventsNbr = 0;
   hfdcan1.Init.TxBuffersNbr = 0;
-  hfdcan1.Init.TxFifoQueueElmtsNbr = 0;
+  hfdcan1.Init.TxFifoQueueElmtsNbr = 1;
   hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
-  hfdcan1.msgRam.StandardFilterSA = 0;
-  hfdcan1.msgRam.ExtendedFilterSA = 0;
-  hfdcan1.msgRam.RxFIFO0SA = 0;
-  hfdcan1.msgRam.RxFIFO1SA = 0;
-  hfdcan1.msgRam.RxBufferSA = 0;
-  hfdcan1.msgRam.TxEventFIFOSA = 0;
-  hfdcan1.msgRam.TxBufferSA = 0;
-  hfdcan1.msgRam.TxFIFOQSA = 0;
-  hfdcan1.msgRam.TTMemorySA = 0;
-  hfdcan1.msgRam.EndAddress = 0;
-  hfdcan1.ErrorCode = 0;
   if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
 }
 
 /* USART3 init function */
