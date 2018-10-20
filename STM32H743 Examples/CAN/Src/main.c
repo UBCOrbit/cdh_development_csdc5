@@ -56,6 +56,7 @@ FDCAN_RxHeaderTypeDef RxHeader;
 uint8_t RxData[8];
 FDCAN_TxHeaderTypeDef TxHeader;
 uint8_t TxData[8] = "Trillium";
+FDCAN_FilterTypeDef sFilterConfig;
 
 /* USER CODE END PV */
 
@@ -71,7 +72,6 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -124,6 +124,16 @@ int main(void)
   TxHeader.FDFormat = FDCAN_CLASSIC_CAN;
   TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
   TxHeader.MessageMarker = 0;
+
+  /* Configure extended ID reception filter to Rx FIFO 1 */
+  sFilterConfig.IdType = FDCAN_STANDARD_ID;
+  sFilterConfig.FilterIndex = 0;
+  sFilterConfig.FilterType = FDCAN_FILTER_DUAL; // or FDCAN_FILTER_RANGE_NO_EIDM
+  sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+  sFilterConfig.FilterID1 = 0x321;
+  HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,13 +144,21 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+	  // If you cannot add a message to the FIFO Queue, blink LED 2
 	  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData) != HAL_OK) {
 		  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 		  HAL_Delay(500);
 		  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
 	  }
+	  HAL_Delay(50);
+	  // If you cannot receive the message from the FIFO Queue, blink LED 1
+	  while (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK);
+		  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+		  HAL_Delay(500);
+		  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+		  HAL_Delay(500);
 
-	  HAL_Delay(1000);
+	  //HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 
