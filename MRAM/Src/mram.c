@@ -1,3 +1,12 @@
+/*
+ * mram.c
+ *
+ * Created: 31 March 2018
+ * Author:  Andrada Zoltan
+ *
+ *     Driver for the MR20H40 magnetic RAM.
+ */
+
 #include "MRAM.h"
 
 SPI_HandleTypeDef hspi3;
@@ -26,9 +35,9 @@ void init_mem() {
 void write_enable(int enable) {
 	uint8_t cmd;
 	if (enable == 1)
-		cmd = 0x06;
+		cmd = WRITE_ENABLE;
 	else
-		cmd = 0x04;
+		cmd = WRITE_DISABLE;
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
@@ -47,13 +56,13 @@ void write_enable(int enable) {
 * Parameter: data - 8bit data to write to the status register
 */
 void write_status(uint8_t *data) {
-	uint8_t cmd = 0x01;
+	uint8_t cmd = WRITE_STATUS_REG;
+
+	// Drive high to ~WP to write to status register
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_SET);
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
-
-	// Drive high to ~WP to write to status register
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 
 	//Send command
 	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
@@ -62,7 +71,7 @@ void write_status(uint8_t *data) {
 	HAL_SPI_Transmit(&hspi3, data, 1, 50);
 
 	// Drive LOW back to ~WP to block writes to status register
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
 
 	//Drive CS pin back to high
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -73,22 +82,17 @@ void write_status(uint8_t *data) {
 *
 * Parameter: data - 8bit data to write to the status register
 */
-void read_status(uint8_t *status) {
-	uint8_t cmd = 0x05;
-
+void read_status(uint8_t* status) {
+	uint8_t cmd = READ_STATUS_REG;
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
-
-	//Send command
-	//HAL_SPI_TransmitReceive(&hspi3, &cmd, status, 1, 50);
 
 	//Send command
 	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
 
 	// Receive
 	while (HAL_SPI_Receive(&hspi3, status, 1, 50) != HAL_OK);
-
 
 	//Drive CS pin back to high
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -98,15 +102,18 @@ void read_status(uint8_t *status) {
 * Read memory at a specified address. Function will continue to read until
 * the CS pin is set high.
 *
-* Parameter: address - 16bit address to read from
+* Parameter: address - 32-bit address to read from, note that MRAM only expects 24-bits
 * Parameter: size - size in bytes to read
 * Parameter: buffer - pointer in memory where the read data should be stored
 */
-void read_mem(uint16_t address, int size, uint8_t *buffer) {
-	uint8_t cmd = 0x03;
-	uint8_t highb = ((uint8_t *)&address);
-	uint8_t lowb = ((uint8_t *)((&address)+1));
-	uint8_t addr[2] = {highb, lowb};
+void read_mem(uint32_t address, int size, uint8_t *buffer) {
+	uint8_t addr[3];
+	uint8_t cmd = READ_DATA;
+
+	// ARM processor is little endian, MRAM expects big endian
+	addr[0] = (address >> 16) & 0xFF;
+	addr[1] = (address >> 8) & 0xFF;
+	addr[2] = (address) & 0xFF;
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
@@ -115,9 +122,9 @@ void read_mem(uint16_t address, int size, uint8_t *buffer) {
 	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
 
 	//Send address to read from in memory
-	HAL_SPI_Transmit(&hspi3, (uint8_t *)&addr, 2, 50);
+	HAL_SPI_Transmit(&hspi3, addr, 3, 50);
 
-	while (HAL_SPI_Receive(&hspi3, *buffer, size, 50) != HAL_OK);
+	while (HAL_SPI_Receive(&hspi3, buffer, size, 50) != HAL_OK);
 
 	//Drive CS pin back to high to end reading communication
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -126,12 +133,18 @@ void read_mem(uint16_t address, int size, uint8_t *buffer) {
 /*
 * Write data into memory at a specified address.
 *
-* Parameter: address - 16bit address to write to
+* Parameter: address - 32-bit address to write 2, note that MRAM only expects 24-bits
 * Parameter: size - size in bytes to write
 * Parameter: buffer - pointer in memory where data to write is stored
 */
-void write_mem(uint16_t address, int size, uint8_t *buffer) {
-	uint8_t cmd = 0x02;
+void write_mem(uint32_t address, int size, uint8_t *buffer) {
+	uint8_t addr[3];
+	uint8_t cmd = WRITE_DATA;
+
+	// ARM processor is little endian, MRAM expects big endian
+	addr[0] = (address >> 16) & 0xFF;
+	addr[1] = (address >> 8) & 0xFF;
+	addr[2] = (address) & 0xFF;
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
@@ -140,10 +153,10 @@ void write_mem(uint16_t address, int size, uint8_t *buffer) {
 	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
 
 	//Send address to write to in memory
-	HAL_SPI_Transmit(&hspi3, (uint8_t *)&address, 2, 50);
+	HAL_SPI_Transmit(&hspi3, addr, 3, 50);
 
 	//Send data
-	HAL_SPI_Transmit(&hspi3, *buffer, size, 50);
+	HAL_SPI_Transmit(&hspi3, buffer, size, 50);
 
 	//Drive CS pin back to high to end writing communication
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -157,9 +170,9 @@ void write_mem(uint16_t address, int size, uint8_t *buffer) {
 void sleep(int sleep) {
 	uint8_t cmd;
 	if (sleep == 1)
-		cmd = 0xB9;
+		cmd = SLEEP_MODE;
 	else
-		cmd = 0xAB;
+		cmd = ACTIVE_MODE;
 
 	//Drive CS pin to low
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);

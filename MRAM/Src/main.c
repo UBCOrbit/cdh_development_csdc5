@@ -39,6 +39,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "mram.h"
+#include <stdlib.h>
+#include <string.h>
 
 /* USER CODE BEGIN Includes */
 
@@ -62,7 +65,7 @@ static void MX_SPI3_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+void print_string(char msg[], int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -113,37 +116,45 @@ int main(void)
   /*	BEGIN MRAM test code	*/
   /******************************/
 
-  /* Initialize mram
-   * 	Drive HIGH to ~HOLD
-   * 	Drive HIGH to ~CS
-   * 	Drive LOW to ~WP
-   */
+  uint8_t	mram_status_read, mram_status_write;
+
+  uint8_t   data_write[] = "Test Data for Memory";
+  uint8_t   data_read[21];
+  uint32_t  address;
+
+  // Initialize pins
   init_mem();
+  print_string("MRAM Initialized!\n", strlen("MRAM Initialized!\n"));
 
-  /* Write to status register
-   * 	Drive ~WP high if SRWD = 1
-   * 	Set WEL 1
-   */
-  uint8_t	mram_status_write = 0x76;				// 8'b0111_0110
+  // Enable writing to status register
+  write_enable(1);
 
-  // Assume ~WP is already driven high
-  write_enable(1);									// Set WEL 1
-  write_status(&mram_status_write);					// Write status into status register
+  // Write to status register
+  mram_status_write = 0b01110011;
+  write_status(&mram_status_write);
 
-  /* Read from status register
-   * 	Read data to 8-bit variable then convert to string and serial print out
-   */
-  uint8_t	mram_status_read = 0x0;					// Status register read buffer
-  read_status(&mram_status_read);					// Read status register
-  char*		mram_status_string[10];					// string buffer for register readout
-  itoa(mram_status_read, mram_status_string, 2);	// Convert status readout to string and place in buffer
+  // Check if write was executed properly
+  read_status(&mram_status_read);
+  if (mram_status_read == mram_status_write)
+	  print_string("Successful write to status register!\n\n", strlen("Successful write to status register!\n"));
+  else
+	  print_string("Failed write to status register\n", strlen("Failed write to status register\n"));
 
-  // Serial print out 8-bit/1-byte status register value
-  // Should be 8'b0111_0110
-  HAL_UART_Transmit(&huart2, (uint8_t *) mram_status_string, strlen(mram_status_string)*sizeof(char)+8, 0xFFFF);
-  // Print new line
-  char*		newline_buffer = "\n\r";
-  HAL_UART_Transmit(&huart2, (uint8_t *) newline_buffer, strlen(newline_buffer)*sizeof(char)+8, 0xFFFF);
+  // Write to memory
+  address = 0x123456;
+  write_mem(address, 20, data_write);
+
+  // Read from memory
+  read_mem(address, 20, data_read);
+  int err = 0;
+  for (int i = 0; i < 20; i++) {
+	  if (data_read[i] != data_write[i])
+		  err = 1;
+  }
+  if (!err)
+	  print_string("Successful write to memory!\n", strlen("Successful write to memory!\n"));
+  else
+	  print_string("Failed write to memory!\n", strlen("Failed write to memory!\n"));
 
   /**************************/
   /*	END MRAM test code	*/
@@ -151,8 +162,6 @@ int main(void)
 
   while (1)
   {
-
-	  //HAL_UART_Transmit(&huart2, (uint8_t *) mram_test_read_buffer, mram_test_size, 0xFFFF);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -309,7 +318,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void print_string(char msg[], int size) {
+	HAL_UART_Transmit(&huart2, (uint8_t *)msg, size, 0xFF);
+}
 /* USER CODE END 4 */
 
 /**
