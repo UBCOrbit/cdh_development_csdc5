@@ -1,11 +1,9 @@
 # Temperature Sensor Example
 
-The following example displys how to use the temperature sensor on the STM32H743. The temperature sensor is accessed through ADC3 on channel 18. 
-
+The following example displays how to use the temperature sensor on the STM32H743. The temperature sensor is accessed through ADC3 on channel 18. 
 It follows [this procedure](https://www.st.com/content/ccc/resource/technical/document/reference_manual/group0/c9/a3/76/fa/55/46/45/fa/DM00314099/files/DM00314099.pdf/jcr:content/translations/en.DM00314099.pdf#page=973) for reading data from the ADC and calculating the temperature.
 
 Additional information can be found in: 
-
 [ADC Characteristics](https://www.st.com/resource/en/datasheet/stm32h743zi.pdf#page=160)
 and
 [Temperature Sensor Characteristics](https://www.st.com/resource/en/datasheet/stm32h743zi.pdf#page=170)
@@ -23,7 +21,7 @@ The clock rate and sampling cycles must be selected such that the sampling time 
 
 ## Channel Configuration
 
-* **`sConfig.Channel`**: Selects the channel. Set to `ADC_CHANNEL_TEMPSENSOR`
+* **`sConfig.Channel`**: Selects the channel. Set to `ADC_CHANNEL_TEMPSENSOR` (channel 18).
 * **`sConfig.SamplingTime`**: Defines the number of sampling cycles. Options enumerated in STM32CubeMX or in `stm32h7xx_hal_adc_ex.h`.
 
 * **`HAL_ADC_ConfigChannel(&hadc3, &sConfig)`**: Configures the channel.
