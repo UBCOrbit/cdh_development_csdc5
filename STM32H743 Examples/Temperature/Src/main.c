@@ -132,9 +132,9 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-    if (ADC_Enable(&hadc3) != HAL_OK) {
+    //if (ADC_Enable(&hadc3) != HAL_OK) {
       // handle error
-    }
+    //}
 
     // Start conversion
     HAL_ADC_Start(&hadc3);
