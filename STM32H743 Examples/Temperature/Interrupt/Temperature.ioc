@@ -2,7 +2,7 @@
 ADC3.BoostMode=DISABLE
 ADC3.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_TEMPSENSOR
 ADC3.ClockPrescaler=ADC_CLOCK_ASYNC_DIV4
-ADC3.ContinuousConvMode=DISABLE
+ADC3.ContinuousConvMode=ENABLE
 ADC3.ConversionDataManagement=ADC_CONVERSIONDATA_DR
 ADC3.DMAContinuousRequests=DISABLE
 ADC3.DiscontinuousConvMode=DISABLE
@@ -74,6 +74,7 @@ Mcu.UserConstants=
 Mcu.UserName=STM32H743ZITx
 MxCube.Version=4.27.0
 MxDb.Version=DB.4.0.270
+NVIC.ADC3_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.BusFault_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.HardFault_IRQn=true\:0\:0\:false\:false\:true\:true
