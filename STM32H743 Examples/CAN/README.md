@@ -22,7 +22,7 @@ Prior to transmitting the first message, a TX Header must be initialized and con
 ## RX Filter Configuration
 Filtering is started after the complete identifier has been received. It will accept the message if the filter and Tx identifiers match. Configuration details are outlined below:
 * **`sFilterConfig.IdType`**: Specify if you are using `FDCAN_STANDARD_ID` or `FDCAN_EXTENDED_ID`. We are using a standard FDCAN in this example so we will use `FDCAN_STANDARD_ID`.
-* **`sFilterConfig.FilterIndex`**: Specifies the filter which will be initialized. In this example we are using filter RxFIFO0 so we set the index to `0`.
-* **`sFilterConfig.FilterType`**: Specify which type of filter you are using. Options include `FDCAN_FILTER_DUAL`, `FDCAN_FILTER_RANGE`, `FDCAN_FILTER_MASK`, `FDCAN_FILTER_RANGE_NO_EIDM`. Any of these will work for this example.
+* **`sFilterConfig.FilterIndex`**: Specifies which filter will be initialized. When using `FDCAN_STANDARD_ID`, value must be between 0 and 127.
+* **`sFilterConfig.FilterType`**: Specify the type of filter. `FDCAN_FILTER_DUAL` is a filter than can accept two identifiers. Although not using two filters in this case, other options were strange so this one works.
 * **`sFilterConfig.FilterConfig`**: Configure the location that will store Rx. In this example we are using `FDCAN_FILTER_TO_RXFIFO0`.
 * **`sFilterConfig.FilterID1`**: Specifies the filter identification. This should be the same as `TxHeader.Identifier`.
