@@ -9,7 +9,7 @@ Additional information can be found in:
 and
 [Temperature Sensor Characteristics](https://www.st.com/resource/en/datasheet/stm32h743zi.pdf#page=170)
 
-This program starts off by printing the calibration values of the temperature sensor at 30C and 110C. It then polls the ADC and prints the converted raw sensor value and calculated temperature in a loop.
+This program starts off by printing the calibration values of the temperature sensor at 30°C and 110°C. It then polls the ADC and prints the converted raw sensor value and calculated temperature in a loop.
 
 The clock rate and sampling cycles must be selected such that the sampling time is greater than the minimum sampling time for the ADC (9µs). 
 

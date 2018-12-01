@@ -7,7 +7,7 @@ Additional information can be found in:
 and
 [Temperature Sensor Characteristics](https://www.st.com/resource/en/datasheet/stm32h743zi.pdf#page=170)
 
-This program starts off by printing the calibration values of the temperature sensor at 30C and 110C. It then starts off a continuous ADC conversion that runs in the background which updates the values of the sensor data and calculated temperature each time it finishes and calls the callback function. The main body is a loop that continually prints the value of the sensor data and temperature variables.
+This program starts off by printing the calibration values of the temperature sensor at 30°C and 110°C. It then starts off a continuous ADC conversion that runs in the background which calls the callback function each time it finishes. The callback function updates the values of the sensor data and calculated temperature. The main body is a loop that continually prints the value of the sensor data and temperature variables.
 
 The clock rate and sampling cycles must be selected such that the sampling time is greater than the minimum sampling time for the ADC (9µs). 
 
@@ -15,7 +15,7 @@ The clock rate and sampling cycles must be selected such that the sampling time 
 * **`hadc3.Instance`**: Defines the register base address. Set to `ADC3` to access the temperature sensor.
 * **`hadc3.Init.ClockPrescaler`**: Defines the clock source and prescaling to be used for the ADC.
 * **`hadc3.Init.BoostMode`**: Must be `ENABLED` if the ADC clock rate is >= 20 MHz. It should be set automatically by STM32CubeMX when configuring the clock rate.
-* **'hadc3.Init.ContinuousConvMode'**: Set to `ENABLE` to perform conversions in continuous mode.
+* **`hadc3.Init.ContinuousConvMode`**: Set to `ENABLE` to perform conversions in continuous mode.
 
 * **`HAL_ADC_Init(&hadc3)`**: Initializes the ADC peripheral.
 
