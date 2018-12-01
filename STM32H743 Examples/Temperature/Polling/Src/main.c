@@ -1,4 +1,3 @@
-
 /**
   ******************************************************************************
   * @file           : main.c
@@ -70,20 +69,6 @@ static void MX_USART3_UART_Init(void);
 #define TS_CAL2_110 (uint16_t*)((uint32_t) 0x1FF1E840)
 #define TEMP30  30.0f
 #define TEMP110 110.0f
-
-int32_t temperature = 50;
-float   sensorValue = 200;
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-  float CAL110 = (float) *TS_CAL2_110;
-  float CAL30 = (float) *TS_CAL1_30;
-
-  // Get the sensor value and calculate the temperature
-  sensorValue = (float)HAL_ADC_GetValue(hadc);
-  temperature = (int32_t)((TEMP110 - TEMP30) / ((CAL110) - (CAL30)) * (sensorValue - (CAL30))) + TEMP30;
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -94,8 +79,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  int count = 0;
-  char tempbuf[13];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -111,7 +95,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -119,13 +103,14 @@ int main(void)
   MX_ADC3_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  if (HAL_ADCEx_Calibration_Start(&hadc3, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+  uint8_t buffer[2] = " \n";
+  char tempbuf[13];
 
-  // Start conversion
-  HAL_ADC_Start_IT(&hadc3);
+  int32_t temperature;
+  float   sensorValue;
+
+  float CAL110 = (float) *TS_CAL2_110;
+  float CAL30 = (float) *TS_CAL1_30;
 
   // Write out calibration readings for testing
   memset(tempbuf, 0, sizeof(tempbuf));
@@ -146,9 +131,21 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+    //if (ADC_Enable(&hadc3) != HAL_OK) {
+      // handle error
+    //}
 
-    // Print out sensor/temperature value
-    if (count % 3000000 == 0) {
+    // Start conversion
+    HAL_ADC_Start(&hadc3);
+
+    // Wait for conversion
+    if (HAL_ADC_PollForConversion(&hadc3, 10) == HAL_OK)
+    {
+      // Get the sensor value and calculate the temperature
+      sensorValue = (float)HAL_ADC_GetValue(&hadc3);
+      temperature = (int32_t)((TEMP110 - TEMP30) / ((CAL110) - (CAL30)) * (sensorValue - (CAL30))) + TEMP30;
+
+      // Print out sensor value
       memset(tempbuf, 0, sizeof(tempbuf));
       sprintf(tempbuf, "%ld\n", (int32_t) sensorValue);
       HAL_UART_Transmit(&huart3, (uint8_t *) tempbuf, sizeof(tempbuf), HAL_MAX_DELAY);
@@ -157,10 +154,13 @@ int main(void)
       memset(tempbuf, 0, sizeof(tempbuf));
       sprintf(tempbuf, "%ld\n", temperature);
       HAL_UART_Transmit(&huart3, (uint8_t *) tempbuf, sizeof(tempbuf), HAL_MAX_DELAY);
-
-      count = 0;
     }
-    count++;
+    else
+    {
+      HAL_UART_Transmit(&huart3, buffer, sizeof(buffer), HAL_MAX_DELAY);
+    }
+    HAL_Delay(1000);
+
   }
   /* USER CODE END 3 */
 
@@ -273,7 +273,7 @@ static void MX_ADC3_Init(void)
   hadc3.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc3.Init.LowPowerAutoWait = DISABLE;
-  hadc3.Init.ContinuousConvMode = ENABLE;
+  hadc3.Init.ContinuousConvMode = DISABLE;
   hadc3.Init.NbrOfConversion = 1;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.NbrOfDiscConversion = 1;
@@ -293,7 +293,7 @@ static void MX_ADC3_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;//ADC_SAMPLETIME_64CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_64CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -301,7 +301,10 @@ static void MX_ADC3_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
+  if (HAL_ADCEx_Calibration_Start(&hadc3, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
 }
 
 /* USART3 init function */
