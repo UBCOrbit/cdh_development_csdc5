@@ -9,7 +9,7 @@
 
 #include "MRAM.h"
 
-SPI_HandleTypeDef hspi3;
+SPI_HandleTypeDef hspi2;
 
 /*
  * Initialize the pins to allow for communication to the device.
@@ -43,7 +43,7 @@ void write_enable(int enable) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send command
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	//Drive CS pin back to high
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -65,10 +65,10 @@ void write_status(uint8_t *data) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send command
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	//Send data to write to register
-	HAL_SPI_Transmit(&hspi3, data, 1, 50);
+	HAL_SPI_Transmit(&hspi2, data, 1, 50);
 
 	// Drive LOW back to ~WP to block writes to status register
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
@@ -89,10 +89,10 @@ void read_status(uint8_t* status) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send command
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	// Receive
-	while (HAL_SPI_Receive(&hspi3, status, 1, 50) != HAL_OK);
+	while (HAL_SPI_Receive(&hspi2, status, 1, 50) != HAL_OK);
 
 	//Drive CS pin back to high
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -119,12 +119,12 @@ void read_mem(uint32_t address, int size, uint8_t *buffer) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send read command
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	//Send address to read from in memory
-	HAL_SPI_Transmit(&hspi3, addr, 3, 50);
+	HAL_SPI_Transmit(&hspi2, addr, 3, 50);
 
-	while (HAL_SPI_Receive(&hspi3, buffer, size, 50) != HAL_OK);
+	while (HAL_SPI_Receive(&hspi2, buffer, size, 50) != HAL_OK);
 
 	//Drive CS pin back to high to end reading communication
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -150,13 +150,13 @@ void write_mem(uint32_t address, int size, uint8_t *buffer) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send write command
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	//Send address to write to in memory
-	HAL_SPI_Transmit(&hspi3, addr, 3, 50);
+	HAL_SPI_Transmit(&hspi2, addr, 3, 50);
 
 	//Send data
-	HAL_SPI_Transmit(&hspi3, buffer, size, 50);
+	HAL_SPI_Transmit(&hspi2, buffer, size, 50);
 
 	//Drive CS pin back to high to end writing communication
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
@@ -178,7 +178,7 @@ void sleep(int sleep) {
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 
 	//Send command to wake up or sleep
-	HAL_SPI_Transmit(&hspi3, &cmd, 1, 50);
+	HAL_SPI_Transmit(&hspi2, &cmd, 1, 50);
 
 	//Drive CS pin back to high
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
