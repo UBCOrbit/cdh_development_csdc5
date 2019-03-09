@@ -250,7 +250,9 @@
 #else
 #define GET_FATTIME()	get_fattime()
 #endif
-
+DWORD get_fattime(){
+	return (DWORD)0;
+}
 
 /* File lock controls */
 #if FF_FS_LOCK != 0

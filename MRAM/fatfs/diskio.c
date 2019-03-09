@@ -9,10 +9,11 @@
 
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
-#include "mram.h"
 
 /* Definitions of physical drive number for each drive */
-#define DEV_MRAM		0
+#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
+#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
+#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
 
 /*-----------------------------------------------------------------------*/
@@ -26,13 +27,29 @@ DSTATUS disk_status (
 	DSTATUS stat;
 	int result;
 
+	switch (pdrv) {
+	case DEV_RAM :
+		//result = RAM_disk_status();
 
-	if (pdrv == DEV_MRAM){
-		// get MRAM status
-		return RES_OK;
-	} else{
-		return STA_NOINIT;		
+		// translate the reslut code here
+
+		return stat;
+
+	case DEV_MMC :
+		//result = MMC_disk_status();
+
+		// translate the reslut code here
+
+		return stat;
+
+	case DEV_USB :
+		//result = USB_disk_status();
+
+		// translate the reslut code here
+
+		return 0;
 	}
+	return 0;
 }
 
 
@@ -48,12 +65,29 @@ DSTATUS disk_initialize (
 	DSTATUS stat;
 	int result;
 
-	if (pdrv == DEV_MRAM){
-		// initialize MRAM
-		return RES_OK;
-	} else{
-		return STA_NOINIT;		
+	switch (pdrv) {
+	case DEV_RAM :
+		//result = RAM_disk_initialize();
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_MMC :
+		//result = MMC_disk_initialize();
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_USB :
+		//result = USB_disk_initialize();
+
+		// translate the reslut code here
+
+		return 0;
 	}
+	return 0;
 }
 
 
@@ -72,12 +106,36 @@ DRESULT disk_read (
 	DRESULT res;
 	int result;
 
-	if (pdrv == DEV_MRAM){
-		// read from MRAM
-		return RES_OK;
-	} else{
-		return STA_NOINIT;		
+	switch (pdrv) {
+	case DEV_RAM :
+		// translate the arguments here
+
+		//result = RAM_disk_read(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_MMC :
+		// translate the arguments here
+
+		//result = MMC_disk_read(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_USB :
+		// translate the arguments here
+
+		//result = USB_disk_read(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
 	}
+
+	return 0;
 }
 
 
@@ -98,12 +156,36 @@ DRESULT disk_write (
 	DRESULT res;
 	int result;
 
-	if (pdrv == DEV_MRAM){
-		// Write to MRAM
-		return RES_OK;
-	} else{
-		return STA_NOINIT;		
+	switch (pdrv) {
+	case DEV_RAM :
+		// translate the arguments here
+
+		//result = RAM_disk_write(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_MMC :
+		// translate the arguments here
+
+		//result = MMC_disk_write(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
+
+	case DEV_USB :
+		// translate the arguments here
+
+		//result = USB_disk_write(buff, sector, count);
+
+		// translate the reslut code here
+
+		return 0;
 	}
+
+	return 0;
 }
 
 #endif
@@ -122,11 +204,26 @@ DRESULT disk_ioctl (
 	DRESULT res;
 	int result;
 
-	if (pdrv == DEV_MRAM){
-		// do whatever you want
-		return RES_OK;
-	} else{
-		return STA_NOINIT;		
+	switch (pdrv) {
+	case DEV_RAM :
+
+		// Process of the command for the RAM drive
+
+		return res;
+
+	case DEV_MMC :
+
+		// Process of the command for the MMC/SD card
+
+		return res;
+
+	case DEV_USB :
+
+		// Process of the command the USB drive
+
+		return res;
 	}
+
+	return RES_PARERR;
 }
 
