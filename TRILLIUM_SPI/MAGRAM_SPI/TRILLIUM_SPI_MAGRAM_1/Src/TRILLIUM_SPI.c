@@ -63,22 +63,24 @@ Purpose: Clears the MCUs master bit in the register allowing
 it to enter back into master mode
 **/
 void Clear_Master_Register(){
-
 	READ_REG(hspi2.Instance->SR);
+
+	HAL_Delay(500);
 	uint16_t regCR1 = READ_REG(hspi2.Instance -> CR1);
-    WRITE_REG(hspi2.Instance -> CR1, ( regCR1| (1 << 2)));
-    regCR1 = READ_REG(hspi2.Instance -> CR1);
-    uint8_t *reg = (uint8_t*) &regCR1;
-    reg[0] += '0';
-    reg[1] += '0';
+	uint8_t count = 0;
     while((regCR1 & 0x4) == 0){
     	WRITE_REG(hspi2.Instance -> CR1, ( regCR1| (1 << 2)));
     	regCR1 = READ_REG(hspi2.Instance -> CR1);
+    	count++;
     }
-    HAL_UART_Transmit(&huart2, "REG: \n", 6, 0xff);
-    HAL_UART_Transmit(&huart2, reg, 2, 0xff);
-    HAL_UART_Transmit(&huart2, "\n", 2, 0xff);
+    uint8_t *reg = (uint8_t*) &regCR1;
+    reg[0] += '0';
+    reg[1] += '0';
+    count += '0';
 
+    HAL_UART_Transmit(&huart2, "REG: \n", 6, 0xff);
+    HAL_UART_Transmit(&huart2, &count, 1, 0xff);
+    HAL_UART_Transmit(&huart2, "\n", 2, 0xff);
 }
 
 /**

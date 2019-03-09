@@ -62,11 +62,13 @@ Purpose: Clears the MCUs master bit in the register allowing
 it to enter back into master mode
 **/
 void Clear_Master_Register(){
-
 	READ_REG(hspi2.Instance->SR);
 	uint16_t regCR1 = READ_REG(hspi2.Instance -> CR1);
-    WRITE_REG(hspi2.Instance -> CR1, ( regCR1| (1 << 2)));
 
+	while((regCR1 & 0x4) == 0){
+	   WRITE_REG(hspi2.Instance -> CR1, ( regCR1| (1 << 2)));
+	   regCR1 = READ_REG(hspi2.Instance -> CR1);
+	}
 }
 
 /**

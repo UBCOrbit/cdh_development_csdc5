@@ -151,27 +151,36 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
+	  print_string("Waiting for pin to go low\n", strlen("Waiting for pin to go low\n"));
+
 	  // Wait for pin to go low so this MCU is slave mode
 	  while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
+
+	  print_string("Waiting for pin to go high\n", strlen("Waiting for pin to go high\n"));
 
 	  // Wait for pin to go high, means other MCU is done communicating
 	  while(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
 
+	  print_string("Switch IO 1\n", strlen("Switch IO 1\n"));
 	  Switch_IO(1);
-	  Set_Slaves();
-	  HAL_Delay(1000);
+	  HAL_Delay(500);
 
+	  print_string("Set slaves\n", strlen("Set slaves\n"));
+	  Set_Slaves();
+	  HAL_Delay(500);
+
+	  print_string("Clear master reg\n", strlen("Clear master reg\n"));
 	  Clear_Master_Register();
 
+	  print_string("Read mem\n", strlen("Read mem\n"));
 	  read_mem(ad, 1, (uint8_t *)&c);
 
 	  print_string((uint8_t *)&c,1);
 	  print_string("\n",1);
 
 	 // Set_Masters();
-	  HAL_Delay(1000);
+	  print_string("Switch IO 0\n", strlen("Switch IO 0\n"));
 	  Switch_IO(0);
-
 
 
 
