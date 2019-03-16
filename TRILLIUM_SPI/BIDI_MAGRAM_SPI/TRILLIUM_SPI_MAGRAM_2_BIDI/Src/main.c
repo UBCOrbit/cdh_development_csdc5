@@ -128,33 +128,18 @@ int main(void)
 	  HAL_Delay(500);
 
 	  print_string("Clear master reg\n", strlen("Clear master reg\n"));
-	  Switch_BIDI(0);
 	  Clear_Master_Register();
 
-	  print_string("Write mem\n", strlen("Write mem\n"));
-	  write_mem(ad, 1, (uint8_t *)&c);
 
 	  read_mem(ad,1,(uint8_t *)&d);
 
 	  print_string((uint8_t *)&d,1);
 	  print_string("\n",1);
 
-	  //Set_Masters();
-	  Switch_BIDI(1);
 	  print_string("Switch IO 0\n", strlen("Switch IO 0\n"));
 	  Switch_IO(0);
 
 	  c++;
-
-	  print_string("Waiting for pin to go low\n", strlen("Waiting for pin to go low\n"));
-
-	  // Wait for pin to go low so this MCU is slave mode
-	  while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
-
-	  print_string("Waiting for pin to go high\n", strlen("Waiting for pin to go high\n"));
-
-	  // Wait for pin to go high, means other MCU is done communicating
-	  while(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
 
 	  print_string("Switch IO 1\n", strlen("Switch IO 1\n"));
 	  Switch_IO(1);
@@ -233,7 +218,7 @@ static void MX_SPI2_Init(void)
   /* SPI2 parameter configuration*/
   hspi2.Instance = SPI2;
   hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.Direction = SPI_DIRECTION_1LINE;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;

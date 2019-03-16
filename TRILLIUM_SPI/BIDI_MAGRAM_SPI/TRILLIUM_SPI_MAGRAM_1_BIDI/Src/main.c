@@ -101,89 +101,37 @@ int main(void)
   MX_SPI2_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
- // uint8_t	mram_status_read, mram_status_write;
-
-  //uint8_t   data_write[] = "Test Data for Memory";
-  //uint8_t   data_read[21];
-  //uint32_t  address;
 
   // Initialize pins
  // init_mem();
   print_string("MRAM Initialized!\n", strlen("MRAM Initialized!\n"));
 
-//  // Enable writing to status register
-//  write_enable(1);
-//
-//  // Write to status register
-//  mram_status_write = 0b01110011;
-//  write_status(&mram_status_write);
-//
-//  // Check if write was executed properly
-//  read_status(&mram_status_read);
-//  if (mram_status_read == mram_status_write)
-//	  print_string("Successful write to status register!\n\n", strlen("Successful write to status register!\n"));
-//  else
-//	  print_string("Failed write to status register\n", strlen("Failed write to status register\n"));
-//
-//  // Write to memory
-//  address = 0x123456;
-//  write_mem(address, 20, data_write);
-//
-//  // Read from memory
-//  read_mem(address, 20, data_read);
-//  int err = 0;
-//  for (int i = 0; i < 20; i++) {
-//	  if (data_read[i] != data_write[i])
-//		  err = 1;
-//  }
-//  if (!err)
-//	  print_string("Successful write to memory!\n", strlen("Successful write to memory!\n"));
-//  else
-//	  print_string("Failed write to memory!\n", strlen("Failed write to memory!\n"));
   /* USER CODE END SysInit */
 
   /* Infinite loop */
   char c = 'q';
   uint32_t ad = 0x123456;
 
-  Switch_BIDI(0);
   /* USER CODE BEGIN WHILE */
   while (1)
   {
 
   /* USER CODE END WHILE */
-	  print_string("Waiting for pin to go low\n", strlen("Waiting for pin to go low\n"));
 
 	  // Wait for pin to go low so this MCU is slave mode
+	  print_string("Waiting for pin to go low\n", strlen("Waiting for pin to go low\n"));
 	  while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
 
-	  print_string("Waiting for pin to go high\n", strlen("Waiting for pin to go high\n"));
-
-	  // Wait for pin to go high, means other MCU is done communicating
-	  while(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
-
-	  print_string("Switch IO 1\n", strlen("Switch IO 1\n"));
-	  Switch_IO(1);
-	  HAL_Delay(500);
-
-	  print_string("Set slaves\n", strlen("Set slaves\n"));
-	  Set_Slaves();
-	  HAL_Delay(500);
-
-	  print_string("Clear master reg\n", strlen("Clear master reg\n"));
-	  Clear_Master_Register();
-
 	  print_string("Read mem\n", strlen("Read mem\n"));
-	  while(HAL_SPI_Receive(&hspi2, (uint8_t *)&c,1,0xf));
-	  print_string("\n", strlen("\n"));
-	  read_mem(ad, 1, (uint8_t *)&c);
+	  while(HAL_SPI_Receive(&hspi2, (uint8_t *)&c,1,0xf) != HAL_OK);
 
 	  print_string((uint8_t *)&c,1);
 	  print_string("\n",1);
 
-	 // Set_Masters();
-	  print_string("Switch IO 0\n", strlen("Switch IO 0\n"));
-	  Switch_IO(0);
+	  // Wait for pin to go high, means other MCU is done communicating
+	  print_string("Waiting for pin to go high\n", strlen("Waiting for pin to go high\n"));
+	  while(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12));
+
 
 
   /* USER CODE BEGIN 3 */
@@ -257,7 +205,7 @@ static void MX_SPI2_Init(void)
   /* SPI2 parameter configuration*/
   hspi2.Instance = SPI2;
   hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.Direction = SPI_DIRECTION_1LINE;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
