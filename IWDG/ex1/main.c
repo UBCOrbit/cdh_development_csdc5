@@ -58,17 +58,9 @@
 /* Private variables ---------------------------------------------------------*/
 IWDG_HandleTypeDef hiwdg;
 UART_HandleTypeDef huart2;
-//extern QueueHandle_t interruptQueue;
-//TaskHandle_t line13Handle = NULL;
-//TaskHandle_t line10Handle = NULL;
 TaskHandle_t highHandle = NULL;
 TaskHandle_t midHandle = NULL;
 TaskHandle_t lowHandle = NULL;
-//TaskHandle_t demoHandle = NULL;
-//QueueHandle_t storingQueue;
-//osThreadId defaultTaskHandle;
-//
-//EventGroupHandle_t eventGroup;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -80,14 +72,6 @@ static void MX_GPIO_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
-int flag_bits[2];
-//void exti_line13(void);
-//void exti_line10(void);
-//void high(int* array);
-//void mid(int* slot);
-//void low(int* slot);
-//void mid2(int* slot);
-//void demo(void);
 void high(char *param);
 void mid(char *param);
 void low(char *param);
@@ -151,21 +135,9 @@ int main(void)
   /* definition and creation of defaultTask */
 //  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
 //  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-//  eventGroup = xEventGroupCreate();
-  	//char s[100];
-  	//xTaskCreate(low, "low", 1000, NULL, 1, &lowHandle);
-  	 char str[1000];
+     char str[1000];
      int len = sprintf(str, "System has been reset!\n");
      HAL_UART_Transmit(&huart2, str, len, 1000);
-     //the approach might be: pass position(slot) pointers to regular tasks, pass array pointer to the WD task
-//     int *parray = &flag_bits;
-//     int *p1 = &flag_bits[0]; //an alternative way is that you can create a struct for the array and array-slot pair to pass to the tasks other than the WD task
-//  	 int *p2 = &flag_bits[1];
-//     xTaskCreate(mid, "mid", 1000, p1, 1, &midHandle);
-//     xTaskCreate(mid2, "mid2", 1000, p2, 2, &lowHandle);
-//     xTaskCreate(high, "high", 1000, parray, 3, &highHandle);
-  	//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
-  	//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
      static const char *textForLow = "low\n";
      static const char *textForMid = "mid\n";
      static const char *textForHigh = "high\n";
@@ -173,46 +145,6 @@ int main(void)
      xTaskCreate(mid, "mid", 1000, textForMid, 2, &lowHandle);
      xTaskCreate(high, "high", 1000, textForHigh, 3, &highHandle);
      vTaskStartScheduler();
-    //interruptQueue=xQueueCreate(1, sizeof(int32_t));
-    //storingQueue will be of variable size
-//    if(interruptQueue != NULL){
-//    UBaseType_t priority;
-//    BaseType_t create;
-// 	create = xTaskCreate(exti_line13, "deferred_13", 1000, NULL, 1, &line13Handle);
-// 	if (create == pdPASS){
-// 		HAL_UART_Transmit(&huart2, s, sprintf(s, "13 done\n"), 100);
-// 		HAL_Delay(500);
-// 	}
-// 	else {
-// 		HAL_UART_Transmit(&huart2, s, sprintf(s, "fail\n"), 100);
-// 	}
-// 	HAL_UART_Transmit(&huart2, s, sprintf(s, "continue\n"), 100);
-//    xTaskCreate(demo, "demo", 1000, NULL, 2, &demoHandle);
-//    xTaskCreate(exti_line13, "deferred_13", 1000, NULL, 5, &line13Handle);
-//  	xTaskCreate(exti_line10, "deferred_10", 1000, NULL, 5, &line10Handle);
-//  	xTaskCreate(deferred, "deferred_default", 1000, NULL, 5, &deferredHandle);
-//  	xTaskCreate(regular, "regular", 1000, NULL, 4, &regularHandle);
-//  	HAL_UART_Transmit(&huart2, s, sprintf(s, "continue\n"), 100);
-//  	priority=uxTaskPriorityGet(line13Handle);
-//	HAL_UART_Transmit(&huart2, s, sprintf(s, "13p: %d\n",priority ), 100);
-//	priority=uxTaskPriorityGet(line10Handle);
-//	HAL_UART_Transmit(&huart2, s, sprintf(s, "10p: %d\n",priority ), 100);
-//	priority=uxTaskPriorityGet(deferredHandle);
-//	HAL_UART_Transmit(&huart2, s, sprintf(s, "def: %d\n",priority), 100);
-//	priority=uxTaskPriorityGet(regularHandle);
-//	HAL_UART_Transmit(&huart2, s, sprintf(s, "reg: %d\n",priority), 100);
-  	 //maybe even if you create tasks with priorities; don't use these priorities
-  	 //just use task notifications
-//  	 priority=uxTaskPriorityGet(regularHandle);
-//  	 HAL_UART_Transmit(&huart2, s, sprintf(s, "reg: %d\n",priority), 100);
-
-  	 //HAL_Delay(1000);
-//  	 vTaskStartScheduler();
-//
-//    }
-//    else{
-//  	 HAL_UART_Transmit(&huart2, s, sprintf(s, "Queue couldn't be created -- insufficient heap!\n"), 100);
-//    }
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -221,12 +153,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-//    	priority=uxTaskPriorityGet(line13Handle);
-//    	HAL_UART_Transmit(&huart2, s, sprintf(s, "13p: %d\n",priority ), 100);
-//    	priority=uxTaskPriorityGet(line10Handle);
-//    	HAL_UART_Transmit(&huart2, s, sprintf(s, "10p: %d\n",priority ), 100);
-//    	priority=uxTaskPriorityGet(deferredHandle);
-//    	HAL_UART_Transmit(&huart2, s, sprintf(s, "def: %d\n",priority), 100);
 
 
   /* Start scheduler */
@@ -240,8 +166,6 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-//	  HAL_UART_Transmit(&huart2, s, sprintf(s, "in def\n"), 1000);
-//	  HAL_Delay(1000);
   /* USER CODE BEGIN 3 */
 
   }
@@ -271,224 +195,6 @@ void low(char *param){
 		HAL_Delay(400);
 	}
 }
-
-//void high(int* array){
-//	TickType_t xLastWakeTime;
-//	const TickType_t xFrequency = pdMS_TO_TICKS(2000);
-//	xLastWakeTime = xTaskGetTickCount();
-//	char str[1000];
-//	//int len = sprintf(str, "System has been reset!\n");
-//	for(;;){
-////		for(int i=0; i< sizeof(array)/sizeof(int); i++){
-////					array[i]=0;
-////				}
-//				for(int i=0; i< sizeof(array)/sizeof(int); i++){
-//					HAL_UART_Transmit(&huart2, str, sprintf(str, "%i: %i\n", i, array[i]), HAL_MAX_DELAY);
-//				}
-//				vTaskDelayUntil(&xLastWakeTime, xFrequency);
-////		for(int i=0; i< sizeof(array)/sizeof(int); i++){
-////			HAL_UART_Transmit(&huart2, str, sprintf(str, "%i\n", array[i]), HAL_MAX_DELAY);
-//////			int len = sprintf(str, "%i\n", array[i]);
-//////			HAL_UART_Transmit(&huart2, str, sizeof(str), 1000);
-////		}
-//	}
-//}
-
-//void mid(int* slot){
-//	for(;;){
-//		//do its job
-//		//(*slot) = 1;
-//		(*slot)++; //set the slot value to 1 (right now it's incrementing)
-//		HAL_Delay(500);
-//	}
-//}
-//
-//void mid2(int* slot){
-//	for(;;){
-//			//do its job
-//			(*slot)++;
-//			//(*slot)++; //set the slot value to 1 (right now it's incrementing)
-//			HAL_Delay(500);
-//		}
-//}
-
-//void low(int* slot){
-//	for(;;){
-//			(*slot)++;
-//			HAL_Delay(500);
-//		}
-//}
-//void mid(int* slot){
-//	//char str[10000]= "mid\n";
-//	//int len = sprintf(str, "high\n");
-////	TickType_t xLastWakeTime;
-////	const TickType_t xFrequency = pdMS_TO_TICKS(500);
-////	xLastWakeTime = xTaskGetTickCount();
-//	for(;;){
-//		//ddflag_mid = 0; //start execution -- unknown state
-//		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) == 1){
-//						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//					} else{
-//						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-//					}
-//		//HAL_Delay(100);
-//		*slot = 1; //finished execution -- success state
-//		//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
-//		//HAL_UART_Transmit(&huart2, str, sizeof(str), HAL_MAX_DELAY);
-//		//HAL_UART_Transmit(&huart2, str, len, 1000);
-//		//vTaskDelayUntil(&xLastWakeTime, xFrequency);
-//	}
-//}
-//void high(int* array){
-//	TickType_t xLastWakeTime;
-//	const TickType_t xFrequency = pdMS_TO_TICKS(2000);
-//	xLastWakeTime = xTaskGetTickCount();
-//	for(;;){
-//		for(int i=0; i< sizeof(array)/sizeof(int); i++){
-//			if(*array[i])
-//		}
-//		if(flag_mid == 1){
-//			HAL_IWDG_Refresh(&hiwdg);
-//			vTaskDelayUntil(&xLastWakeTime, xFrequency);
-//		} else{
-//			//will generate reset
-//		}
-//	}
-////	char str[10000]= "high\n";
-////		//int len = sprintf(str, "high\n");
-////		TickType_t xLastWakeTime;
-////		const TickType_t xFrequency = pdMS_TO_TICKS(10000);
-////		xLastWakeTime = xTaskGetTickCount();
-////		for(;;){
-////			if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_12)){
-////				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
-////			} else{
-////				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
-////			}
-////			vTaskDelayUntil(&xLastWakeTime, xFrequency);
-////		}
-//			//HAL_UART_Transmit(&huart2, str, sizeof(str), HAL_MAX_DELAY);
-//			//HAL_UART_Transmit(&huart2, str, len, 1000);
-//}
-//void low(void){
-//	char str[10000]="low\n";
-//	//int len = sprintf(str, "low\n");
-//	for(;;){
-//					if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5)){
-//						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//					} else{
-//						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-//					}
-//		//HAL_UART_Transmit(&huart2, str, len, 1000);
-//		//HAL_UART_Transmit(&huart2, str, sizeof(str), HAL_MAX_DELAY);
-//	}
-//	char str[10000];
-//	   int len = sprintf(str, "def\n");
-//	   for(;;){
-//		   HAL_UART_Transmit(&huart2, str, len, 1000);
-//		   //HAL_Delay(100);
-//	   }
-//}
-
-//void deferred(void){
-//	char s[100];
-//	for(;;){
-//		HAL_UART_Transmit(&huart2, s, sprintf(s, "in def\n"), 1000);
-//	}
-//	int32_t interrupt;
-//	UBaseType_t priority;
-//	const TickType_t waitToReceive = pdMS_TO_TICKS(5000);
-//	char s[100];
-//	HAL_Delay(500);
-//	for(;;){
-//		if(xQueueReceive(interruptQueue, &interrupt, waitToReceive)){
-////			HAL_UART_Transmit(&huart2, s, sprintf(s, "received: %d\n", interrupt), 1000);
-////			HAL_Delay(500);
-//			if(interrupt == 8192){
-//				HAL_UART_Transmit(&huart2, s, sprintf(s, "inter=13!\n"), 1000);
-//				//priority=uxTaskPriorityGet(line13Handle);
-//				//vTaskPrioritySet(line13Handle, priority+3);
-//			}
-////			if(interrupt == 1024){
-////				//HAL_UART_Transmit(&huart2, s, sprintf(s, "inter=10!\n"), 1000);
-////				priority=uxTaskPriorityGet(line10Handle);
-//////				HAL_UART_Transmit(&huart2, s, sprintf(s, "p: %d\n", priority), 1000);
-////				vTaskPrioritySet(line10Handle, priority+3);
-////			}
-//		}
-//	}
-//}
-//void exti_line10(void){
-//	char s[100];
-//		for(;;){
-//			HAL_UART_Transmit(&huart2, s, sprintf(s, "in 10\n"), 1000);
-//		}
-////	const TickType_t delay1s= pdMS_TO_TICKS(1000);
-////	UBaseType_t priority;
-////	priority=uxTaskPriorityGet(NULL);
-////	char s[100];
-////	for(;;){
-////		HAL_UART_Transmit(&huart2, s, sprintf(s, "10\n"), 100);
-////		HAL_Delay(1000);
-////		vTaskPrioritySet(NULL, priority-3);
-////	}
-//}
-//
-//void exti_line13(void){
-//	char s[100];
-//		for(;;){
-//			HAL_UART_Transmit(&huart2, s, sprintf(s, "in 13\n"), 1000);
-//			//HAL_Delay(1000);
-//		}
-////	const TickType_t delay1s= pdMS_TO_TICKS(1000);
-////		UBaseType_t priority;
-////		priority=uxTaskPriorityGet(NULL);
-////		char s[100];
-////		for(;;){
-////			HAL_UART_Transmit(&huart2, s, sprintf(s, "13\n"), 100);
-////			HAL_Delay(1000); //this deferred interrupt task CANNOT be interrupted by other tasks --> it needs to decrease its priority before exiting!!!!!
-////			vTaskPrioritySet(NULL, priority-3);
-////		}
-//}
-
-//void regular(void){ //regular doesn't mean periodic!!! vTaskDelayUntil() would make this task periodic --which is not what we want
-//	const TickType_t delay1s= pdMS_TO_TICKS(1000);
-//	char s[100];
-//	UBaseType_t priority;
-//	for(;;){
-//		//priority=uxTaskPriorityGet(regularHandle);
-//		//HAL_UART_Transmit(&huart2, s, sprintf(s, "reg p: %d\n",priority), 100);
-//		HAL_UART_Transmit(&huart2, s, sprintf(s, "reg\n"), 1000); //report this before triggering the interrupt
-//		//HAL_Delay(1000);
-////		priority=uxTaskPriorityGet(demoHandle);
-////		HAL_UART_Transmit(&huart2, s, sprintf(s, "demo p: %d\n",priority), 100);
-////		//vTaskPrioritySet(demoHandle, priority+3);
-////		//HAL_Delay(1000);
-////		priority=uxTaskPriorityGet(deferredHandle);
-////		HAL_UART_Transmit(&huart2, s, sprintf(s, "def p: %d\n",priority), 100);
-////		//HAL_Delay(1000);
-////		priority=uxTaskPriorityGet(line13Handle);
-////		HAL_UART_Transmit(&huart2, s, sprintf(s, "13 p: %d\n",priority), 100);
-////		//HAL_Delay(1000);
-////		priority=uxTaskPriorityGet(line10Handle);
-////		HAL_UART_Transmit(&huart2, s, sprintf(s, "10 p: %d\n",priority), 100);
-//		//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
-//		//vTaskDelay(delay1s);
-//		//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
-//		//HAL_UART_Transmit(&huart2, s, sprintf(s, "regular2\n"), 100);
-//	}
-//}
-//
-//void demo(void){
-//	char s[100];
-//	UBaseType_t priority;
-//	priority=uxTaskPriorityGet(NULL);
-//	for(;;){
-//		HAL_UART_Transmit(&huart2, s, sprintf(s, "demo\n"), 100);
-//		//HAL_UART_Transmit(&huart2, s, sprintf(s, "demo p: %d\n",priority), 100);
-//		//vTaskPrioritySet(NULL, priority-3);
-//	}
-//}
 
 /**
   * @brief System Clock Configuration
