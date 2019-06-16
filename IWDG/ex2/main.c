@@ -90,9 +90,6 @@ void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-//void high(char *param, int* array);
-//void mid(char *param, int* slot);
-//void low(char *param, int* slot);
 void high(int *arr);
 void mid(int *slot);
 void low(int *slot);
