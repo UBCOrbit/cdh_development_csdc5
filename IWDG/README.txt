@@ -4,3 +4,6 @@ This task will consequently be blocked for a while just a bit shorter than the m
 The WD task must be blocked with vTaskDelayUntil(), rather than vTaskDelay(), because we want to return to this task precisely x seconds later, independent of whatever unexpected delay might occur inside of other lower priority tasks.
 see https://betterembsw.blogspot.com/2014/05/proper-watchdog-timer-use.html
 see https://www.embedded.com/design/debug-and-optimization/4402288/Watchdog-Timers
+Challenges: How to record which task(s) caused the software problem so that we can "maybe" record this and take action about it before/after the reset??
+To Ask: Why is the SDIO option highlighted in red in CubeMX?
+To Do: Connection with ISRs, and also the regular tasks and the WD task should mask and then unmask interrupts while doing bit setting and bit checking
