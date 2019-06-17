@@ -6,4 +6,4 @@ see https://betterembsw.blogspot.com/2014/05/proper-watchdog-timer-use.html
 see https://www.embedded.com/design/debug-and-optimization/4402288/Watchdog-Timers
 Challenges: How to record which task(s) caused the software problem so that we can "maybe" record this and take action about it before/after the reset??
 To Ask: Why is the SDIO option highlighted in red in CubeMX?
-To Do: Connection with ISRs, and also the regular tasks and the WD task should mask and then unmask interrupts while doing bit setting and bit checking
+To Do: Connection with ISRs, and also the regular tasks and the WD task should mask and then unmask interrupts while doing bit setting and bit checking. Use a mutex to protect the flag_bit variable!!
