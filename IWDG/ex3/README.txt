@@ -1,2 +1,3 @@
 WD task to set task bits to 0, other tasks to set their bits back to 1 when done
 Note!!: There's a problem that I want to ask. When I don't change the value of "slot" from inside of the tasks, the pointer values get updated correctly by the WD task. However, when I set "slot" from inside of the tasks, this value for some reason overrides the change made in the WD timer in print statements both before and after making the change - shouldn't it be overriding only after the change?? Why can't I see the value set from the WD task before setting "slot" in the other tasks??
+see https://repl.it/@gokcedilek99/pointers2
